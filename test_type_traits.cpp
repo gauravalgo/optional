@@ -43,6 +43,7 @@ struct Unsafe
 };
 
 
+#if !OPTIONAL_GCC45_COMPATIBILITY
 static_assert(std::is_nothrow_move_constructible<Safe>::value, "WTF!");
 static_assert(!std::is_nothrow_move_constructible<Unsafe>::value, "WTF!");
 
@@ -51,5 +52,6 @@ static_assert(!std::is_assignable<Val&, Val&&>::value, "WTF!");
 
 static_assert(std::is_nothrow_move_assignable<Safe>::value, "WTF!");
 static_assert(!std::is_nothrow_move_assignable<Unsafe>::value, "WTF!");
+#endif
 
 int main() { }
