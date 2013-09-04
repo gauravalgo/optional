@@ -204,13 +204,21 @@ T* static_addressof(T& ref)
 template <class U>
 struct is_not_optional
 {
+  #if !OPTIONAL_GCC45_COMPATIBILITY
   constexpr static bool value = true;
+  #else
+  static const bool value = true;
+  #endif
 };
 
 template <class T>
 struct is_not_optional<optional<T>>
 {
+  #if !OPTIONAL_GCC45_COMPATIBILITY
   constexpr static bool value = false;
+  #else
+  static const bool value = false;
+  #endif
 };
 
 
@@ -296,6 +304,7 @@ struct optional_base
 };
 
 
+#if !OPTIONAL_GCC45_COMPATIBILITY
 template <class T>
 struct constexpr_optional_base
 {
@@ -319,6 +328,7 @@ struct constexpr_optional_base
 
     ~constexpr_optional_base() = default;
 };
+#endif
 
 # if OPTIONAL_HAS_USING
 template <class T> 
