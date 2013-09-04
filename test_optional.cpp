@@ -948,7 +948,9 @@ TEST(optional_ref_assign)
   
   int j = 1;
   ori = optional<int&>{j};
+  #if !OPTIONAL_GCC45_COMPATIBILITY
   ori = {j};
+  #endif
   // FAILS: ori = j;
   
   optional<int&> orx = ori;
@@ -1196,10 +1198,12 @@ TEST(arrow_wit_optional_ref)
   assert (on->m == 1);
   assert (on->n == 2);
   
+  #if !OPTIONAL_GCC45_COMPATIBILITY
   on = {m};
   assert (on);
   assert (on->m == 3);
   assert (on->n == 4);
+  #endif
   
   on.emplace(p);
   assert (on);
@@ -1350,6 +1354,7 @@ namespace constexpr_optional_ref_and_arrow
 #include <string>
 
 
+#if !OPTIONAL_GCC45_COMPATIBILITY
 struct VEC
 {
     std::vector<int> v;
@@ -1359,6 +1364,7 @@ struct VEC
     template <typename U, typename... X>
     VEC(std::initializer_list<U> il, X&&...x) : v(il, std::forward<X>(x)...) {}
 };
+#endif
 
 
 
@@ -1368,7 +1374,9 @@ int main() {
   oi.operator=({});
   assert (!oi);
 
+  #if !OPTIONAL_GCC45_COMPATIBILITY
   VEC v = {5, 6};
+  #endif
 
   if (OPTIONAL_HAS_THIS_RVALUE_REFS)
     std::cout << "has rvalue references for *this" << std::endl;
