@@ -160,6 +160,7 @@ template <class T> inline constexpr typename std::remove_reference<T>::type&& co
 #endif
 
 
+#if !OPTIONAL_GCC45_COMPATIBILITY
 template <typename T>
 struct has_overloaded_addressof
 {
@@ -185,6 +186,18 @@ T* static_addressof(T& ref)
 {
   return std::addressof(ref);
 }
+#else
+template <typename T>
+T* addressof(T& ref)
+{
+  return reinterpret_cast<T*>(&const_cast<char&>(reinterpret_cast<const volatile char&>(ref)));
+}
+template <typename T>
+T* static_addressof(T& ref)
+{
+  return addressof(ref);
+}
+#endif
 
 
 
@@ -327,7 +340,13 @@ class optional : private OptionalBase<T>
 
   constexpr bool initialized() const noexcept { return OptionalBase<T>::init_; }
   T* dataptr() {  return std::addressof(OptionalBase<T>::storage_.value_); }
-  constexpr const T* dataptr() const { return static_addressof(OptionalBase<T>::storage_.value_); }
+  constexpr const T* dataptr() const {
+    #if !OPTIONAL_GCC45_COMPATIBILITY
+    return static_addressof(OptionalBase<T>::storage_.value_);
+    #else
+    return static_addressof(OptionalBase<T>::storage_.value_);
+    #endif
+  }
   
 # if OPTIONAL_HAS_THIS_RVALUE_REFS == 1
   constexpr const T& contained_val() const& { return OptionalBase<T>::storage_.value_; }
