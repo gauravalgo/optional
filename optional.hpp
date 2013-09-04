@@ -319,7 +319,11 @@ struct optional_base
     template <class... Args> explicit optional_base(in_place_t, Args&&... args)
         : init_(true), storage_(constexpr_forward<Args>(args)...) {}
 
-    template <class U, class... Args, REQUIRES(is_constructible<T, std::initializer_list<U>>)>
+    template <class U, class... Args
+      #if !OPTIONAL_GCC44_COMPATIBILITY
+      , REQUIRES(is_constructible<T, std::initializer_list<U>>)
+      #endif
+      >
     explicit optional_base(in_place_t, std::initializer_list<U> il, Args&&... args)
         : init_(true), storage_(il, std::forward<Args>(args)...) {}
 
@@ -471,7 +475,11 @@ public:
     constexpr explicit optional(in_place_t, Args&&... args)
         : OptionalBase<T>(in_place_t{}, constexpr_forward<Args>(args)...) {}
 
-    template <class U, class... Args, REQUIRES(is_constructible<T, std::initializer_list<U>>)>
+    template <class U, class... Args
+      #if !OPTIONAL_GCC44_COMPATIBILITY
+      , REQUIRES(is_constructible<T, std::initializer_list<U>>)
+      #endif
+      >
     explicit optional(in_place_t, std::initializer_list<U> il, Args&&... args)
         : OptionalBase<T>(in_place_t{}, il, constexpr_forward<Args>(args)...) {}
 
