@@ -72,6 +72,7 @@ using is_trivially_destructible = typename std::has_trivial_destructor<T>;
 #  else
 
 
+#if !OPTIONAL_GCC45_COMPATIBILITY
 // workaround for missing traits in GCC and CLANG
 template <class T>
 struct is_nothrow_move_constructible
@@ -109,6 +110,7 @@ struct is_nothrow_move_assignable
   constexpr static bool value = has_nothrow_move_assign<T, is_assignable<T&, T&&>::value>::value;
 };
 // end workaround
+#endif
 
 
 #  endif // not as good as GCC 4.7
@@ -342,7 +344,10 @@ class optional : private OptionalBase<T>
   }
   
   template <class... Args>
-  void initialize(Args&&... args) noexcept(noexcept(T(std::forward<Args>(args)...)))
+  void initialize(Args&&... args)
+  #if !OPTIONAL_GCC45_COMPATIBILITY
+  noexcept(noexcept(T(std::forward<Args>(args)...)))
+  #endif
   {
     assert(!OptionalBase<T>::init_);
     new (dataptr()) T(std::forward<Args>(args)...);
@@ -350,7 +355,10 @@ class optional : private OptionalBase<T>
   }
 
   template <class U, class... Args>
-  void initialize(std::initializer_list<U> il, Args&&... args) noexcept(noexcept(T(il, std::forward<Args>(args)...)))
+  void initialize(std::initializer_list<U> il, Args&&... args)
+  #if !OPTIONAL_GCC45_COMPATIBILITY
+  noexcept(noexcept(T(il, std::forward<Args>(args)...)))
+  #endif
   {
     assert(!OptionalBase<T>::init_);
     new (dataptr()) T(il, std::forward<Args>(args)...);
@@ -370,7 +378,10 @@ public:
     if (rhs.initialized()) new (dataptr()) T(*rhs);
   }
 
-  optional(optional&& rhs) noexcept(std::is_nothrow_move_constructible<T>::value)
+  optional(optional&& rhs)
+  #if !OPTIONAL_GCC45_COMPATIBILITY
+  noexcept(std::is_nothrow_move_constructible<T>::value)
+  #endif
   : OptionalBase<T>(only_set_initialized, rhs.initialized())
   {
     if (rhs.initialized()) new (dataptr()) T(std::move(*rhs));
@@ -407,7 +418,9 @@ public:
   }
   
   optional& operator=(optional&& rhs) 
+  #if !OPTIONAL_GCC45_COMPATIBILITY
   noexcept(std::is_nothrow_move_assignable<T>::value && std::is_nothrow_move_constructible<T>::value)
+  #endif
   {
     if      (initialized() == true  && rhs.initialized() == false) clear();
     else if (initialized() == false && rhs.initialized() == true)  initialize(std::move(*rhs));
@@ -444,7 +457,10 @@ public:
   }
   
   // 20.5.4.4 Swap
-  void swap(optional<T>& rhs) noexcept(is_nothrow_move_constructible<T>::value && noexcept(swap(declval<T&>(), declval<T&>())))
+  void swap(optional<T>& rhs)
+  #if !OPTIONAL_GCC45_COMPATIBILITY
+  noexcept(is_nothrow_move_constructible<T>::value && noexcept(swap(declval<T&>(), declval<T&>())))
+  #endif
   {
     if      (initialized() == true  && rhs.initialized() == false) { rhs.initialize(std::move(**this)); clear(); }
     else if (initialized() == false && rhs.initialized() == true)  { initialize(std::move(*rhs)); rhs.clear(); }
@@ -896,7 +912,10 @@ template <class T> constexpr bool operator>=(const T& v, const optional<const T&
 
 // 20.5.12 Specialized algorithms 
 template <class T> 
-void swap(optional<T>& x, optional<T>& y) noexcept(noexcept(x.swap(y)))
+void swap(optional<T>& x, optional<T>& y)
+#if !OPTIONAL_GCC45_COMPATIBILITY
+noexcept(noexcept(x.swap(y)))
+#endif
 {
   x.swap(y);
 }
