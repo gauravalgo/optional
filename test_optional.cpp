@@ -1052,25 +1052,22 @@ struct generic<U&>
   typedef std::reference_wrapper<U> type;
 };
 
-template <class T>
-using Generic = typename generic<T>::type;
-
 template <class X>
 bool generic_fun()
 {
-  std::optional<Generic<X>> op;
+  std::optional<typename generic<X>::type> op;
   return bool(op);
 }
 
 TEST(optional_ref_emulation)
 {
   using namespace std;
-  optional<Generic<int>> oi = 1;
+  optional<typename generic<int>::type> oi = 1;
   assert (*oi == 1);
   
   int i = 8;
   int j = 4;
-  optional<Generic<int&>> ori {i};
+  optional<typename generic<int&>::type> ori {i};
   assert (*ori == 8);
   assert ((void*)&*ori != (void*)&i); // !DIFFERENT THAN optional<T&>
 
