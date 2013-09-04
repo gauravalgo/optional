@@ -246,6 +246,7 @@ public:
 };
 
 
+#if !OPTIONAL_GCC45_COMPATIBILITY
 template <class T>
 union storage_t
 {
@@ -274,7 +275,23 @@ union constexpr_storage_t
 
     ~constexpr_storage_t() = default;
 };
+#else
+template <class T>
+struct storage_t
+{
+  unsigned char storage_[sizeof(T)];
+  T& value_() { return *reinterpret_cast<T*>(storage_); }
+  const T& value_() const { return *reinterpret_cast<const T*>(storage_); }
 
+  storage_t( trivial_init_t ): storage_() {}
+
+  template <class... Args> storage_t( Args&&... args ) {
+    new(storage_) T(forward<Args>(args)...);
+  }
+
+  ~storage_t(){}
+};
+#endif
 
 constexpr struct only_set_initialized_t{} only_set_initialized{};
 
@@ -300,7 +317,13 @@ struct optional_base
     explicit optional_base(in_place_t, std::initializer_list<U> il, Args&&... args)
         : init_(true), storage_(il, std::forward<Args>(args)...) {}
 
-    ~optional_base() { if (init_) storage_.value_.T::~T(); }
+    ~optional_base() {
+      #if !OPTIONAL_GCC45_COMPATIBILITY
+      if (init_) storage_.value_.T::~T();
+      #else
+      if (init_) storage_.value_().T::~T();
+      #endif
+    }
 };
 
 
@@ -349,12 +372,18 @@ class optional : private OptionalBase<T>
   
 
   constexpr bool initialized() const noexcept { return OptionalBase<T>::init_; }
-  T* dataptr() {  return std::addressof(OptionalBase<T>::storage_.value_); }
+  T* dataptr() {
+    #if !OPTIONAL_GCC45_COMPATIBILITY
+    return std::addressof(OptionalBase<T>::storage_.value_);
+    #else
+    return std::addressof(OptionalBase<T>::storage_.value_());
+    #endif
+  }
   constexpr const T* dataptr() const {
     #if !OPTIONAL_GCC45_COMPATIBILITY
     return static_addressof(OptionalBase<T>::storage_.value_);
     #else
-    return static_addressof(OptionalBase<T>::storage_.value_);
+    return static_addressof(OptionalBase<T>::storage_.value_());
     #endif
   }
   
@@ -363,8 +392,20 @@ class optional : private OptionalBase<T>
   T& contained_val() & { return OptionalBase<T>::storage_.value_; }
   T&& contained_val() && { return std::move(OptionalBase<T>::storage_.value_); }
 # else
-  constexpr const T& contained_val() const { return OptionalBase<T>::storage_.value_; }
-  T& contained_val() { return OptionalBase<T>::storage_.value_; }
+  constexpr const T& contained_val() const {
+    #if !OPTIONAL_GCC45_COMPATIBILITY
+    return OptionalBase<T>::storage_.value_;
+    #else
+    return OptionalBase<T>::storage_.value_();
+    #endif
+  }
+  T& contained_val() {
+    #if !OPTIONAL_GCC45_COMPATIBILITY
+    return OptionalBase<T>::storage_.value_;
+    #else
+    return OptionalBase<T>::storage_.value_();
+    #endif
+  }
 # endif
 
   void clear() noexcept { 
