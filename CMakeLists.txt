@@ -2,7 +2,7 @@ project(optional)
 cmake_minimum_required(VERSION 2.8)
 enable_testing()
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -Wold-style-cast -Winit-self -Werror=return-type -pedantic")
+set(CMAKE_CXX_FLAGS "-std=c++0x -Wall -Wextra -Wold-style-cast -Winit-self -Werror=return-type -pedantic")
 
 add_executable(test_optional test_optional.cpp)
 add_executable(test_type_traits test_type_traits.cpp)
