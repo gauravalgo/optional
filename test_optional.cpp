@@ -1213,6 +1213,7 @@ TEST(arrow_wit_optional_ref)
 };
 
 
+#if !OPTIONAL_GCC45_COMPATIBILITY
 //// constexpr tests
 
 // these 4 classes have different noexcept signatures in move operations
@@ -1343,6 +1344,7 @@ namespace constexpr_optional_ref_and_arrow
 }
 
 // end constexpr tests
+#endif
 
 
 #include <string>
