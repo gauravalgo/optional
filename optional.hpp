@@ -38,9 +38,15 @@
 #  else
 #   define OPTIONAL_HAS_THIS_RVALUE_REFS 0
 #  endif
+#  if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#   define OPTIONAL_GCC45_COMPATIBILITY 0
+#  else
+#   define OPTIONAL_GCC45_COMPATIBILITY 1
+#  endif
 # else
 #  define OPTIONAL_HAS_THIS_RVALUE_REFS 0
 #  define OPTIONAL_HAS_USING 0
+#  define OPTIONAL_GCC45_COMPATIBILITY 0
 # endif 
 
 

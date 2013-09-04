@@ -4,6 +4,12 @@
 // License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#if __GNUC__ == 4 && __GNUC_MINOR__ <= 5
+#define constexpr
+#define noexcept
+#define nullptr 0
+#endif
+
 # include "optional.hpp"
 
 struct Val

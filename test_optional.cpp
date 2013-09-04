@@ -7,6 +7,12 @@
 // The idea and interface is based on Boost.Optional library
 // authored by Fernando Luis Cacciola Carballal
 
+#if __GNUC__ == 4 && __GNUC_MINOR__ <= 5
+#define constexpr
+#define noexcept
+#define nullptr 0
+#endif
+
 # include "optional.hpp"
 # include <vector>
 # include <iostream>
