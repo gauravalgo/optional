@@ -1135,8 +1135,12 @@ TEST(optional_ref_hashing)
 
 struct Combined
 {
+  #if !OPTIONAL_GCC45_COMPATIBILITY
   int m = 0;
   int n = 1;
+  #else
+  int m, n;
+  #endif
   
   constexpr Combined() : m{5}, n{6} {}
   constexpr Combined(int m, int n) : m{m}, n{n} {}
@@ -1144,8 +1148,12 @@ struct Combined
 
 struct Nasty
 {
+  #if !OPTIONAL_GCC45_COMPATIBILITY
   int m = 0;
   int n = 1;
+  #else
+  int m, n;
+  #endif
   
   constexpr Nasty() : m{5}, n{6} {}
   constexpr Nasty(int m, int n) : m{m}, n{n} {}
