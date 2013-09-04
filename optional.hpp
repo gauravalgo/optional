@@ -578,7 +578,10 @@ public:
     return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
   }
   
-  constexpr explicit operator bool() const noexcept { return initialized(); }  
+  #if !OPTIONAL_GCC44_COMPATIBILITY
+  constexpr explicit
+  #endif
+  operator bool() const noexcept { return initialized(); }
   
 # if OPTIONAL_HAS_THIS_RVALUE_REFS == 1
 
@@ -695,7 +698,10 @@ public:
     return ref ? *ref : (throw bad_optional_access("bad optional access"), *ref);
   }
   
-  explicit constexpr operator bool() const noexcept { 
+  #if !OPTIONAL_GCC44_COMPATIBILITY
+  explicit constexpr
+  #endif
+  operator bool() const noexcept {
     return ref != nullptr; 
   }  
   
