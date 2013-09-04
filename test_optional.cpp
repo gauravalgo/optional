@@ -20,6 +20,9 @@
 # include <complex>
 
 
+#if OPTIONAL_GCC44_COMPATIBILITY
+#error The test code requires lambda functions which aren't available in GCC 4.4
+#endif
 
 struct caller {
     template <class T> caller(T fun) { fun(); }
