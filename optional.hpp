@@ -63,6 +63,12 @@
 #  else
 #   define OPTIONAL_HAS_EXPLICIT_CONVERSION_OPS 0
 #  endif
+# elif defined(_MSC_VER) && _MSC_VER >= 1800
+#  define OPTIONAL_HAS_THIS_RVALUE_REFS 0
+#  define OPTIONAL_HAS_USING 1
+#  define OPTIONAL_HAS_EXPLICIT_CONVERSION_OPS 1
+#  define OPTIONAL_HAS_CONSTEXPR_NOEXCEPT 0
+#  define OPTIONAL_HAS_UNRESTRICTED_UNIONS 0
 # else
 #  define OPTIONAL_HAS_THIS_RVALUE_REFS 0
 #  define OPTIONAL_HAS_USING 0
@@ -78,6 +84,8 @@ namespace std{
 # if (defined __GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8)))
     // leave it; our metafunctions are already defined.
 # elif (defined __clang__) && ((__clang_major__ > 3) || (__clang_major__ == 3) && (__clang_minor__ >= 3))
+    // leave it; our metafunctions are already defined.
+# elif (defined _MSC_VER) && _MSC_VER >= 1800
     // leave it; our metafunctions are already defined.
 # else
 
@@ -186,6 +194,8 @@ template <class T> inline constexpr typename std::remove_reference<T>::type&& co
     __assert(expr, file, line);
   # elif defined __GNUC__
     _assert(expr, file, line);
+  # elif defined _MSC_VER
+    _CrtDbgReport(_CRT_ASSERT, file, line, expr, "");
   # else
   #   error UNSUPPORTED COMPILER
   # endif
@@ -220,11 +230,15 @@ T* static_addressof(T& ref)
   return std::addressof(ref);
 }
 #else
+# if (defined _MSC_VER) && _MSC_VER >= 1800
+    // leave it; our metafunctions are already defined.
+# else
 template <typename T>
 T* addressof(T& ref)
 {
   return reinterpret_cast<T*>(&const_cast<char&>(reinterpret_cast<const volatile char&>(ref)));
 }
+#endif
 template <typename T>
 T* static_addressof(T& ref)
 {
