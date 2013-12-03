@@ -20,9 +20,9 @@
 # include <complex>
 
 
-#if OPTIONAL_GCC44_COMPATIBILITY
-#error The test code requires lambda functions which aren't available in GCC 4.4
-#endif
+#if __GNUC__ == 4 && __GNUC_MINOR__ < 5
+#warning The test code requires lambda functions which aren't available in GCC 4.4
+#else
 
 struct caller {
     template <class T> caller(T fun) { fun(); }
@@ -951,7 +951,7 @@ TEST(optional_ref_assign)
   
   int j = 1;
   ori = optional<int&>{j};
-  #if !OPTIONAL_GCC45_COMPATIBILITY
+  #if OPTIONAL_HAS_CONSTEXPR_NOEXCEPT
   ori = {j};
   #endif
   // FAILS: ori = j;
@@ -1140,7 +1140,7 @@ TEST(optional_ref_hashing)
 
 struct Combined
 {
-  #if !OPTIONAL_GCC45_COMPATIBILITY
+  #if OPTIONAL_HAS_CONSTEXPR_NOEXCEPT
   int m = 0;
   int n = 1;
   #else
@@ -1153,7 +1153,7 @@ struct Combined
 
 struct Nasty
 {
-  #if !OPTIONAL_GCC45_COMPATIBILITY
+  #if OPTIONAL_HAS_CONSTEXPR_NOEXCEPT
   int m = 0;
   int n = 1;
   #else
@@ -1201,7 +1201,7 @@ TEST(arrow_wit_optional_ref)
   assert (on->m == 1);
   assert (on->n == 2);
   
-  #if !OPTIONAL_GCC45_COMPATIBILITY
+  #if OPTIONAL_HAS_CONSTEXPR_NOEXCEPT
   on = {m};
   assert (on);
   assert (on->m == 3);
@@ -1220,7 +1220,7 @@ TEST(arrow_wit_optional_ref)
 };
 
 
-#if !OPTIONAL_GCC45_COMPATIBILITY
+#if OPTIONAL_HAS_CONSTEXPR_NOEXCEPT
 //// constexpr tests
 
 // these 4 classes have different noexcept signatures in move operations
@@ -1357,7 +1357,7 @@ namespace constexpr_optional_ref_and_arrow
 #include <string>
 
 
-#if !OPTIONAL_GCC45_COMPATIBILITY
+#if OPTIONAL_HAS_CONSTEXPR_NOEXCEPT
 struct VEC
 {
     std::vector<int> v;
@@ -1377,7 +1377,7 @@ int main() {
   oi.operator=({});
   assert (!oi);
 
-  #if !OPTIONAL_GCC45_COMPATIBILITY
+  #if OPTIONAL_HAS_CONSTEXPR_NOEXCEPT
   VEC v = {5, 6};
   #endif
 
@@ -1387,3 +1387,4 @@ int main() {
     std::cout << "doesn't have rvalue references for *this" << std::endl;
 }
 
+#endif

@@ -43,7 +43,7 @@ struct Unsafe
 };
 
 
-#if !OPTIONAL_GCC45_COMPATIBILITY
+#if OPTIONAL_HAS_CONSTEXPR_NOEXCEPT
 static_assert(std::is_nothrow_move_constructible<Safe>::value, "WTF!");
 static_assert(!std::is_nothrow_move_constructible<Unsafe>::value, "WTF!");
 
